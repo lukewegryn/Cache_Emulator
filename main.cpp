@@ -17,10 +17,10 @@ int main(int argc, char *argv[]){
 	Cache* c = new Cache();
 	foreach(QString command, *commands){
 		QStringList operation = command.split(QRegExp("\\s"));
-		c->set(c->cacheSize[0], c->blockSize[0], c->mapType::DM, c->writePolicy::WB);
+		c->set(c->cacheSize[1], c->blockSize[0], c->mapType::DM, c->writePolicy::WB);
 		if(operation.at(0) == "read"){
 			qDebug() << "Read";
-			c->read(operation.at(1), c->blockSize[0], c->cacheSize[0]);
+			c->read(operation.at(1), c->blockSize[0], c->cacheSize[3]);
 		}
 		else
 			qDebug() << "Write";
