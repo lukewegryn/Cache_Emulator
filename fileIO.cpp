@@ -6,6 +6,7 @@
 
 fileIO::fileIO(QString fn){
 	if(checkFile(fn)){
+		qDebug() << fn << endl;
 		parseFile(fn);
 	}
 
@@ -16,20 +17,31 @@ fileIO::fileIO(QString fn){
 }
 bool fileIO::checkFile(QString filename){
 	QFile file(filename);
-	if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
-		return true;
-	return false;	
+	if(!file.open(QIODevice::ReadOnly | QIODevice::Text)){
+		file.close();
+		return false;
+	}
+	file.close();
+	return true;	
 }
 
-QStringList fileIO::parseFile(QString filename){
+QStringList* fileIO::getCommands(){
+	return commands;
+}
+
+void fileIO::parseFile(QString filename){
 	commands = new QStringList();
 	if(filename != NULL){
 		QFile file(filename);
-		while(!file.atEnd()){
-			QString line = QString(file.readLine());
-			qDebug() << line << endl;
+		if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        	return;
+		QTextStream in(&file);
+		QString line = in.readLine();
+		while(!line.isNull()){
 			commands->append(line);
+			line = in.readLine();
 		}
+		file.close();
 	}
 }
 

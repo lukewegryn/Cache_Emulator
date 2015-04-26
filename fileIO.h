@@ -7,5 +7,7 @@ class fileIO{
 	public:
 		fileIO(QString filename);
 		bool checkFile(QString filename);	
-		QStringList parseFile(QString filename);
+		void parseFile(QString filename);
+		QStringList* getCommands();
+
 };
