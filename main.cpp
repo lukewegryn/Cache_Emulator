@@ -5,6 +5,10 @@
 #include "Cache.h"
 #include <QStringList>
 #include <QRegExp>
+#include <QVector>
+
+int cacheSizes[4] = {1024, 4096, 65536, 131072};
+int blockSizes[4] = {8, 16, 32, 128};
 
 int main(int argc, char *argv[]){
 	if(argc != 2){
@@ -15,15 +19,12 @@ int main(int argc, char *argv[]){
 	fileIO *io = new fileIO(QString::fromStdString(argv[1]));
 	QStringList *commands = io->getCommands();
 	Cache* c = new Cache();
+	c->resize(cacheSizes[0], blockSizes[0], "DM", true);
 	foreach(QString command, *commands){
 		QStringList operation = command.split(QRegExp("\\s"));
-		c->set(c->cacheSize[1], c->blockSize[0], c->mapType::DM, c->writePolicy::WB);
-		if(operation.at(0) == "read"){
-			qDebug() << "Read";
-			c->read(operation.at(1), c->blockSize[0], c->cacheSize[3]);
-		}
-		else
-			qDebug() << "Write";
+		c->process(operation.at(0), operation.at(1));
 	}
+
+	qDebug() << c->getStats();
 	return 0;
 }

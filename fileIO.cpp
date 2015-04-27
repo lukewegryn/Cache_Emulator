@@ -6,7 +6,6 @@
 
 fileIO::fileIO(QString fn){
 	if(checkFile(fn)){
-		qDebug() << fn << endl;
 		parseFile(fn);
 	}
 
