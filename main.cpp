@@ -19,7 +19,7 @@ int main(int argc, char *argv[]){
 	fileIO *io = new fileIO(QString::fromStdString(argv[1]));
 	QStringList *commands = io->getCommands();
 	Cache* c = new Cache();
-	c->resize(cacheSizes[0], blockSizes[0], "DM", true);
+	c->resize(cacheSizes[0], blockSizes[0], "FA", false);
 	foreach(QString command, *commands){
 		QStringList operation = command.split(QRegExp("\\s"));
 		c->process(operation.at(0), operation.at(1));

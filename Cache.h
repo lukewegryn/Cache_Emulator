@@ -8,6 +8,7 @@ class Node{
 		int tag;
 		bool valid;
 		bool dirty;
+		int lastAccessed;
 };
 
 class Cache{
@@ -22,6 +23,7 @@ class Cache{
 		int memToCache;
 		int cacheToMem;
 		int numWays;
+		int numIndexes;
 
 		bool writeBack;
 		QString mapType;
