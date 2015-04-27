@@ -19,6 +19,8 @@ int main(int argc, char *argv[]){
 	}
 
 	fileIO *io = new fileIO(QString::fromStdString(argv[1]));
+	QFile *file = io->getStream(argv[1]);
+	QTextStream out(file);
 	QStringList *commands = io->getCommands();
 	Cache* c;
 	for(int i = 0; i < 4; i++){
@@ -31,7 +33,8 @@ int main(int argc, char *argv[]){
 					QStringList operation = command.split(QRegExp("\\s"));
 					c->process(operation.at(0), operation.at(1));
 					}
-				qDebug() << c->getStats();
+					out << c->getStats() << endl;
+				//qDebug() << c->getStats();
 				}
 			}
 		}

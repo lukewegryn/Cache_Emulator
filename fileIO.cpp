@@ -3,6 +3,7 @@
 #include "fileIO.h"
 #include <QFile>
 #include <QStringList>
+#include <QTextStream>
 
 fileIO::fileIO(QString fn){
 	if(checkFile(fn)){
@@ -43,5 +44,19 @@ void fileIO::parseFile(QString filename){
 		file.close();
 	}
 }
+
+QFile* fileIO::getStream(QString outFilename){
+	QStringList name = outFilename.split(".");
+	QString temp = name.at(0);
+	temp += ".result";
+	QFile* file = new QFile(temp);
+	if (!file->open(QIODevice::WriteOnly | QIODevice::Text))
+        return NULL;
+    return file;
+    //QTextStream* stream = new QTextStream(&file);
+    //return stream;
+}
+
+
 
 
