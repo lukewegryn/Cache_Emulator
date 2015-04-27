@@ -45,11 +45,11 @@ int Cache::ways(QString op){
 		return 1;
 	}
 
-	else if(op == "2Way"){
+	else if(op == "2W"){
 		return 2;
 	}
 
-	else if(op == "4Way"){
+	else if(op == "4W"){
 		return 4;
 	}
 
@@ -63,7 +63,7 @@ void Cache::process(QString operation, QString address){
 	bool ok = false;
 	int hexAddress = data.toInt(&ok, 16);
 	//int numIndex = blockCount/numWays;
-	qDebug() << numIndexes;
+	//qDebug() << numIndexes;
 	int index = (hexAddress/blockSize)%numIndexes;
 	//int offset = hexAddress % blockSize;
 	int tag = hexAddress/cacheSize;

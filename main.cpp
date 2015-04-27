@@ -6,11 +6,13 @@
 #include <QStringList>
 #include <QRegExp>
 #include <QVector>
-
-int cacheSizes[4] = {1024, 4096, 65536, 131072};
-int blockSizes[4] = {8, 16, 32, 128};
+#include <QString>
 
 int main(int argc, char *argv[]){
+	int cacheSizes[4] = {1024, 4096, 65536, 131072};
+	int blockSizes[4] = {8, 16, 32, 128};
+	QString maps[4] = {"DM", "2W","4W","FA"};
+	bool writePolicy[2] = {true, false};
 	if(argc != 2){
 		qDebug() << "\nIncorrect input, please try again.\nUsage:\t ./simulate tracefile" << endl;
 		exit(0);
@@ -18,13 +20,21 @@ int main(int argc, char *argv[]){
 
 	fileIO *io = new fileIO(QString::fromStdString(argv[1]));
 	QStringList *commands = io->getCommands();
-	Cache* c = new Cache();
-	c->resize(cacheSizes[0], blockSizes[0], "FA", false);
-	foreach(QString command, *commands){
-		QStringList operation = command.split(QRegExp("\\s"));
-		c->process(operation.at(0), operation.at(1));
+	Cache* c;
+	for(int i = 0; i < 4; i++){
+		for(int k = 0; k < 4; k++){
+			for(int j = 0; j < 4; j++){
+				for(int l = 0; l < 2; l++){
+				c = new Cache();
+				c->resize(cacheSizes[i], blockSizes[k], maps[j], writePolicy[l]);
+				foreach(QString command, *commands){
+					QStringList operation = command.split(QRegExp("\\s"));
+					c->process(operation.at(0), operation.at(1));
+					}
+				qDebug() << c->getStats();
+				}
+			}
+		}
 	}
-
-	qDebug() << c->getStats();
 	return 0;
 }
