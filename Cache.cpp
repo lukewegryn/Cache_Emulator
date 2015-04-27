@@ -1,6 +1,13 @@
 #include "Cache.h"
 #include <QString>
 #include <QDebug>
+#include <cmath>
+
+Node::Node(){
+	int tag = -1;
+	bool valid = false;
+	bool dirty = false;
+}
 
 Cache::Cache(){
 	cacheSize = 0;
@@ -10,6 +17,7 @@ Cache::Cache(){
 	accesses = 0;
 	memToCache = 0;
 	cacheToMem = 0;
+	numWays = 0;
 	writeBack = true;
 	mapType = "DM";
 }
@@ -20,7 +28,7 @@ void  Cache::resize(int cSize, int bSize, QString m, bool w){
 	mapType = m;
 	writeBack = w;
 	blockCount = cSize/bSize;//calculate the block count
-	int numWays = ways(m);
+	numWays = ways(m);
 	int indexes;
 	if(numWays != -1)
 		indexes = blockCount/numWays;
@@ -54,19 +62,22 @@ void Cache::process(QString operation, QString address){
 	QByteArray data = QByteArray::fromHex(address.toLatin1().toHex());
 	bool ok = false;
 	int hexAddress = data.toInt(&ok, 16);
-	/*qDebug() << "Hex Address\t" << hexAddress;
-	qDebug() << "Cache Size\t" << cSize;
-	qDebug() << "Block Size\t" << bSize;
-	qDebug() << "Block Count\t" << bCount;*/
-	int index = (hexAddress/blockSize)%blockCount;
+	qDebug() << "Hex Address\t" << hexAddress;
+	qDebug() << "Cache Size\t" << cacheSize;
+	qDebug() << "Block Size\t" << blockSize;
+	qDebug() << "Block Count\t" << blockCount;
+	qDebug() << "Number of Ways\t" << numWays;
+	int numIndex = blockCount/numWays;
+	int index = (hexAddress/blockSize)%numIndex;
 	int offset = hexAddress % blockSize;
 	int tag = hexAddress/cacheSize;
+	//int offset = (hexAddress & log2(blockSize))
 	bool hit = false;
 
 	if(operation == "read"){
 		accesses++;
 		for(int i = 0; i < cache[index].size(); i++){
-			if(cache[index][offset] == tag){
+			if(cache[index][i].tag == tag){
 				//qDebug() << "HIT";
 				hit = true;
 				hitCount++;
@@ -74,7 +85,8 @@ void Cache::process(QString operation, QString address){
 		}
 
 			if(hit == false){
-				cache[index][offset] = tag;
+				//Need to implement LRU replacement
+				cache[index][0].tag = tag;
 				memToCache += blockSize;
 				//qDebug() << "MISS";
 			}
@@ -82,25 +94,26 @@ void Cache::process(QString operation, QString address){
 
 	else if(operation == "write"){
 		accesses++;
-		for(int i = 0; i < cache[index].size(); i++){
-			if(cache[index][offset] == tag){
-				//qDebug() << "HIT";
+		for(int i = 0; i < numWays; i++){
+			if(cache[index][i].tag == tag){
+				qDebug() << "HIT";
 				hit = true;
 				hitCount++;
 			}
 		}
 
 			if(hit == false){
-				cache[index][offset] = tag;
+				//Need to implement LRU replacement
+				cache[index][0].tag = tag;
 				memToCache += blockSize;
 				//qDebug() << "MISS";
 			}
 	}
 
 
-	/*qDebug() << "\nTag:\t" << tag;
+	qDebug() << "\nTag:\t" << tag;
 	qDebug() << "Index:\t" << index;
-	qDebug() << "Offset:\t" << offset;*/
+	qDebug() << "Offset:\t" << offset;
 
 	//return result::HIT;
 }
@@ -117,8 +130,9 @@ QString Cache::getStats(){
 	temp += QString::number(blockSize) + "\t";
 	temp += mapType + "\t";
 	temp += wp + "\t";
-	temp += QString::number(double(hitCount)/double(accesses)) + "\t";
+	temp += QString::number(double(hitCount)/double(accesses), 'f', 2) + "\t";
 	temp += QString::number(memToCache) + "\t";
 	temp += QString::number(cacheToMem) + "\t";
+	temp += QString::number(numWays) + "\t";
 	return temp;
 }

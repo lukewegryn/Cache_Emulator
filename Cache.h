@@ -2,10 +2,18 @@
 #include <QByteArray>
 #include <QString>
 
+class Node{
+	public:
+		Node();
+		int tag;
+		bool valid;
+		bool dirty;
+};
+
 class Cache{
 	public:
 		Cache();
-		QVector<QVector<int> > cache;
+		QVector<QVector<Node> > cache;
 		int cacheSize;
 		int blockSize;
 		int blockCount;
@@ -13,6 +21,7 @@ class Cache{
 		int accesses;
 		int memToCache;
 		int cacheToMem;
+		int numWays;
 
 		bool writeBack;
 		QString mapType;
