@@ -25,13 +25,13 @@ class Cache{
 		int numWays;
 		int numIndexes;
 
-		bool writeBack;
+		QString writePolicy; //0 means WriteThrough, 1 means WriteBack
 		QString mapType;
 		//enum class mapType {DM, Way_2, Way_4, FA};
 		//enum class writePolicy {WB, WT};
 		//enum class result {HIT, MISS};
 
-		void resize(int, int, QString, bool);
+		void resize(int, int, QString, QString);
 		void process(QString, QString);
 		int ways(QString op);
 		QString getStats();

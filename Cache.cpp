@@ -21,15 +21,15 @@ Cache::Cache(){
 	memToCache = 0;
 	cacheToMem = 0;
 	numWays = 0;
-	writeBack = true;
+	writePolicy = "WB";
 	mapType = "DM";
 }
 
-void  Cache::resize(int cSize, int bSize, QString m, bool w){
+void  Cache::resize(int cSize, int bSize, QString m, QString w){
 	cacheSize = cSize;
 	blockSize = bSize;
 	mapType = m;
-	writeBack = w;
+	writePolicy = w;
 	blockCount = cSize/bSize;//calculate the block count
 	numWays = ways(m);
 	numIndexes = blockCount/numWays;
@@ -62,17 +62,24 @@ void Cache::process(QString operation, QString address){
 	QByteArray data = QByteArray::fromHex(address.toLatin1().toHex());
 	bool ok = false;
 	int hexAddress = data.toInt(&ok, 16);
-	//int numIndex = blockCount/numWays;
-	//qDebug() << numIndexes;
 	int index = (hexAddress/blockSize)%numIndexes;
-	//int offset = hexAddress % blockSize;
 	int tag = hexAddress/cacheSize;
-	//int offset = (hexAddress & log2(blockSize))
 	bool hit = false;
+
+	if(operation == "write" && writePolicy == "WT"){
+				cacheToMem += 4;
+	}
 
 	for(int i = 0; i < cache[index].size(); i++){
 		if(cache[index][i].tag == tag){//&& (cache[index][i].valid == true)){
 			cache[index][i].lastAccessed = accesses;
+			if(cache[index][i].valid == true && operation == "write" && writePolicy == "WB"){
+				if(cache[index][i].dirty == true){
+					cacheToMem += blockSize;
+				}
+				cache[index][i].dirty = true;
+			}
+			//cache[index][i].dirty = true;
 			hit = true;
 			hitCount++;
 		}
@@ -87,32 +94,26 @@ void Cache::process(QString operation, QString address){
 					choice = i;
 				}
 			}
-				//qDebug() << choice;
-
-			if((cache[index][choice].dirty == true) && (writeBack == true) && (operation == "write")){
-				cacheToMem += blockSize;
-			}
+			
 			cache[index][choice].tag = tag;
 			cache[index][choice].lastAccessed = accesses;
-			if(operation == "write")
+			if(cache[index][choice].valid == true && operation == "write" && writePolicy == "WB"){
+				if(cache[index][choice].dirty == true){
+					cacheToMem += blockSize;
+				}
 				cache[index][choice].dirty = true;
+			}
 			cache[index][choice].valid = true;
 			memToCache += blockSize;
 		}
 }
 
 QString Cache::getStats(){
-	QString wp = "";
-	if(writeBack == true)
-		wp = "WB";
-	else
-		wp = "WT";
-
 	QString temp = "";
 	temp += QString::number(cacheSize) + "\t";
 	temp += QString::number(blockSize) + "\t";
 	temp += mapType + "\t";
-	temp += wp + "\t";
+	temp += writePolicy + "\t";
 	temp += QString::number(double(hitCount)/double(accesses), 'f', 2) + "\t";
 	temp += QString::number(memToCache) + "\t";
 	temp += QString::number(cacheToMem) + "\t";

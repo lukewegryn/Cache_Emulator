@@ -12,7 +12,7 @@ int main(int argc, char *argv[]){
 	int cacheSizes[4] = {1024, 4096, 65536, 131072};
 	int blockSizes[4] = {8, 16, 32, 128};
 	QString maps[4] = {"DM", "2W","4W","FA"};
-	bool writePolicy[2] = {true, false};
+	QString writePolicy[2] = {"WB", "WT"};
 	if(argc != 2){
 		qDebug() << "\nIncorrect input, please try again.\nUsage:\t ./simulate tracefile" << endl;
 		exit(0);
@@ -34,7 +34,6 @@ int main(int argc, char *argv[]){
 					c->process(operation.at(0), operation.at(1));
 					}
 					out << c->getStats() << endl;
-				//qDebug() << c->getStats();
 				}
 			}
 		}
