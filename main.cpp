@@ -33,6 +33,7 @@ int main(int argc, char *argv[]){
 					QStringList operation = command.split(QRegExp("\\s"));
 					c->process(operation.at(0), operation.at(1));
 					}
+					c->cleanUp();
 					out << c->getStats() << endl;
 				}
 			}

@@ -65,20 +65,24 @@ void Cache::process(QString operation, QString address){
 	int index = (hexAddress/blockSize)%numIndexes; //formula from the class notes
 	int tag = (hexAddress/blockSize)/numIndexes; //formula from the class notes
 	bool hit = false;
+	bool isDirty = false;
 
-	/*if(operation == "write" && writePolicy == "WT"){
+	if(operation == "write" && writePolicy == "WT"){
 				cacheToMem += 4;
-	}*/
+	}
+
+	if(writePolicy == "WB" && operation == "write"){
+				isDirty = true;
+	}
 
 	for(int i = 0; i < cache[index].size(); i++){ //this section is responsible for determining if an address is alread in the cache
-		qDebug() << operation;
 		if(cache[index][i].tag == tag && cache[index][i].valid){ //iterate through the index and find that we have a matching tag, it must also have a valid bit
 			cache[index][i].lastAccessed = accesses; //mark that block as accessed on the current access count
 			hit = true; //set hit to true for this iteration
 			hitCount++; //increment the number of hits for this cache configuration
-			//qDebug () << operation;
-			if(writePolicy == "WB" && operation == "write"){
-				//qDebug() << "Writeback and write operation";
+			if(isDirty){
+				//qDebug() << "DIRTY BIT. BOOM BA BA BA BA BABA. BOOOM BA BA BA BA BABA";
+				cache[index][i].dirty = true;
 			}
 		}
 	}
@@ -93,11 +97,30 @@ void Cache::process(QString operation, QString address){
 				}
 			}
 			
+			if(cache[index][choice].dirty){
+				cacheToMem += blockSize;
+				cache[index][choice].dirty = false;
+				qDebug() << "Found a dirty one to write" << endl;
+			}
 			cache[index][choice].tag = tag; //replace the LRU, if there are empty spots in the cache then this will simply replace the first empty one it finds
 			cache[index][choice].valid = true; //since we just added this address from the main memory, we now have a valid block
 			cache[index][choice].lastAccessed = accesses; //since we just updated this one we need to go ahead and mark it as the lastAccessed one
+			if(isDirty){
+				//qDebug() << "DIRTY BIT. BOOM BA BA BA BA BABA. BOOOM BA BA BA BA BABA";
+				cache[index][choice].dirty = true;
+			}
 			memToCache += blockSize; //increment the memory to cache byte transfer counter
 		}
+}
+
+void Cache::cleanUp(){
+	for(int i = 0; i < cache.size(); i++){
+		for(int j = 0; j < cache[i].size(); j++){
+			if(cache[i][j].dirty == true){
+				cacheToMem += blockSize;
+			}
+		}
+	}
 }
 
 QString Cache::getStats(){

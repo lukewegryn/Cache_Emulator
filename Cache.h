@@ -35,4 +35,5 @@ class Cache{
 		void process(QString, QString);
 		int ways(QString op);
 		QString getStats();
+		void cleanUp();
 };
