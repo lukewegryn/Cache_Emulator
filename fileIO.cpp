@@ -17,6 +17,8 @@ fileIO::fileIO(QString fn){
 }
 bool fileIO::checkFile(QString filename){
 	QFile file(filename);
+	if(!file.exists())
+		file.remove();
 	if(!file.open(QIODevice::ReadOnly | QIODevice::Text)){
 		file.close();
 		return false;
@@ -49,6 +51,7 @@ QFile* fileIO::getStream(QString outFilename){
 	QStringList name = outFilename.split(".");
 	QString temp = name.at(0);
 	temp += ".result";
+	QFile::remove(temp);
 	QFile* file = new QFile(temp);
 	if (!file->open(QIODevice::WriteOnly | QIODevice::Text))
         return NULL;
